@@ -2,6 +2,7 @@ import Slideshow from "./Slideshow";
 
 const Greeting = () => {
   return (
+    
     <div class="cards">
       <div class="card">
         <div class="card-info">

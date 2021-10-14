@@ -2,7 +2,7 @@ import "./App.css";
 import Button from "react-bootstrap/Button";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
+// import Nav from "react-bootstrap/Nav";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Container from "react-bootstrap/Container";
@@ -23,7 +23,11 @@ import Greeting from "./Greeting";
 import Alarm from "./Alarm";
 import Exercises from "./Exercises";
 import UsersAwardsTable from "./UsersAwardsTable";
+import Nav from "./Nav";
+import Exercise from "./Exercise";
 import { ToastContainer, toast } from "react-toastify";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Profile from "./Profile";
 import "react-toastify/dist/ReactToastify.css";
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
@@ -80,225 +84,143 @@ function App() {
     start(newTime);
   }, []);
 
-  const notify = () => toast("Wow so easy !");
-
   return (
     <body>
-      <nav class="navbar navbar-light fixed-top">
-        <div class="container-fluid">
-          <div class="logo-name">
-            <a class="navbar-brand" href="#">
-              <span class="logo2">[</span>
-              <div className="letters">
-                <span class="logo">8sight</span>
-              </div>
-              <span class="logo2">]</span>
-            </a>
-          </div>
-          <Button
-            class="btn"
-            size="lg"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasNavbar"
-            aria-controls="offcanvasNavbar"
-            style={{ height: "40px", width: "40px" }}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-            <span />
-            <div>
-              <MenuIcon style={{ margin: "-8px", marginBottom: "3px" }} />
-            </div>
-          </Button>
-          <div
-            class="offcanvas offcanvas-end"
-            tabindex="-1"
-            id="offcanvasNavbar"
-            aria-labelledby="offcanvasNavbarLabel"
-          >
-            <div class="offcanvas-header">
-              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
-                Menu
-              </h5>
-              <button
-                type="button"
-                class="btn-close text-reset"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="offcanvas-body">
-              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">
-                    Home
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    Profile
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    Exercises
-                  </a>
-                </li>
-              </ul>
-              <form class="d-flex">
-                <input
-                  class="form-control me-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-                <Button class="btn" type="submit">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  Search
-                </Button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </nav>
-      <main>
-        <section class="glass">
-          <div class="dashboard">
-            <div class="user">
-              <img src="./images/avatar.png" alt="" />
-              <h3>Simo Edwin</h3>
-              <p>Pro Member</p>
-            </div>
-            <div class="links">
-              <div class="link">
-                <img src="./images/twitch.png" alt="" />
-                <h2>Streams</h2>
-              </div>
-              <div class="link">
-                <img src="./images/steam.png" alt="" />
-                <h2>Games</h2>
-              </div>
-              <div class="link">
-                <img src="./images/upcoming.png" alt="" />
-                <h2>New</h2>
-              </div>
-              <div class="link">
-                <img src="./images/library.png" alt="" />
-                <h2>Library</h2>
-              </div>
-            </div>
-            {/* <div class="pro">
+      <Router>
+        <Nav />
+        <main>
+          <section class="glass">
+            <div class="dashboard">
+              {/* <div class="user">
+                <img src="./images/avatar.png" alt="" />
+                <h3>Simo Edwin</h3>
+                <p>Pro Member</p>
+              </div> */}
+              {/* <div class="links">
+                <div class="link">
+                  <img src="./images/twitch.png" alt="" />
+                  <h2>Streams</h2>
+                </div>
+                <div class="link">
+                  <img src="./images/steam.png" alt="" />
+                  <h2>Games</h2>
+                </div>
+                <div class="link">
+                  <img src="./images/upcoming.png" alt="" />
+                  <h2>New</h2>
+                </div>
+                <div class="link">
+                  <img src="./images/library.png" alt="" />
+                  <h2>Library</h2>
+                </div>
+              </div> */}
+              {/* <div class="pro">
               <h2>Join pro for free games.</h2>
               <img src="./images/controller.png" alt="" />
             </div> */}
-          </div>
-          <div class="games">
-            <div class="status">
-              <h1>Active Games</h1>
-              <input type="text" />
             </div>
-            <Button className="btn" size="lg">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-              button
-            </Button>
-            <p>Time left: {timeLeft}</p>
+            <div class="games">
+              <div class="status">
+                <Switch>
+                  <Route path="/" exact component={Greeting} />
+                  <Route path="/profile" component={Profile} />
+                  <Route path="/exercises" exact component={Exercises} />
+                  <Route path="/exercises/:id" component={Exercise} />
+                </Switch>
+              </div>
+              <Button className="btn" size="lg">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                button
+              </Button>
+              <p>Time left: {timeLeft}</p>
 
-            <button onClick={restart}>Restart counter with 42 seconds</button>
-            <div className="timer">
-              <CountdownCircleTimer
-                {...timerProps}
-                colors={[["#7E2E84"]]}
-                duration={daysDuration}
-                initialRemainingTime={remainingTime}
-              >
-                {({ elapsedTime }) =>
-                  renderTime("days", getTimeDays(daysDuration - elapsedTime))
-                }
-              </CountdownCircleTimer>
-              <CountdownCircleTimer
-                {...timerProps}
-                colors={[["#D14081"]]}
-                duration={daySeconds}
-                initialRemainingTime={remainingTime % daySeconds}
-                onComplete={(totalElapsedTime) => [
-                  remainingTime - totalElapsedTime > hourSeconds,
-                ]}
-              >
-                {({ elapsedTime }) =>
-                  renderTime("hours", getTimeHours(daySeconds - elapsedTime))
-                }
-              </CountdownCircleTimer>
-              <CountdownCircleTimer
-                {...timerProps}
-                colors={[["#EF798A"]]}
-                duration={hourSeconds}
-                initialRemainingTime={remainingTime % hourSeconds}
-                onComplete={(totalElapsedTime) => [
-                  remainingTime - totalElapsedTime > minuteSeconds,
-                ]}
-              >
-                {({ elapsedTime }) =>
-                  renderTime(
-                    "minutes",
-                    getTimeMinutes(hourSeconds - elapsedTime)
-                  )
-                }
-              </CountdownCircleTimer>
-              <CountdownCircleTimer
-                {...timerProps}
-                colors={[["#218380"]]}
-                duration={minuteSeconds}
-                initialRemainingTime={remainingTime % minuteSeconds}
-                onComplete={(totalElapsedTime) => [
-                  remainingTime - totalElapsedTime > 0,
-                ]}
-              >
-                {({ elapsedTime }) =>
-                  renderTime("seconds", getTimeSeconds(elapsedTime))
-                }
-              </CountdownCircleTimer>
-            </div>
-            <div className="card">
-              <ProgressBar now={60} />
-              <ProgressBar animated now={45} />
-              <div>
-                <ProgressBar striped now={20} />
-                <ProgressBar striped variant="warning" now={60} />
-                <ProgressBar striped variant="danger" now={80} />
-                <ProgressBar striped variant="info" now={80} />
-                <ProgressBar striped variant="success" now={80} />
+              <button onClick={restart}>Restart counter with 42 seconds</button>
+              <div className="timer">
+                <CountdownCircleTimer
+                  {...timerProps}
+                  colors={[["#7E2E84"]]}
+                  duration={daysDuration}
+                  initialRemainingTime={remainingTime}
+                >
+                  {({ elapsedTime }) =>
+                    renderTime("days", getTimeDays(daysDuration - elapsedTime))
+                  }
+                </CountdownCircleTimer>
+                <CountdownCircleTimer
+                  {...timerProps}
+                  colors={[["#D14081"]]}
+                  duration={daySeconds}
+                  initialRemainingTime={remainingTime % daySeconds}
+                  onComplete={(totalElapsedTime) => [
+                    remainingTime - totalElapsedTime > hourSeconds,
+                  ]}
+                >
+                  {({ elapsedTime }) =>
+                    renderTime("hours", getTimeHours(daySeconds - elapsedTime))
+                  }
+                </CountdownCircleTimer>
+                <CountdownCircleTimer
+                  {...timerProps}
+                  colors={[["#EF798A"]]}
+                  duration={hourSeconds}
+                  initialRemainingTime={remainingTime % hourSeconds}
+                  onComplete={(totalElapsedTime) => [
+                    remainingTime - totalElapsedTime > minuteSeconds,
+                  ]}
+                >
+                  {({ elapsedTime }) =>
+                    renderTime(
+                      "minutes",
+                      getTimeMinutes(hourSeconds - elapsedTime)
+                    )
+                  }
+                </CountdownCircleTimer>
+                <CountdownCircleTimer
+                  {...timerProps}
+                  colors={[["#218380"]]}
+                  duration={minuteSeconds}
+                  initialRemainingTime={remainingTime % minuteSeconds}
+                  onComplete={(totalElapsedTime) => [
+                    remainingTime - totalElapsedTime > 0,
+                  ]}
+                >
+                  {({ elapsedTime }) =>
+                    renderTime("seconds", getTimeSeconds(elapsedTime))
+                  }
+                </CountdownCircleTimer>
               </div>
-            </div>
-            <Greeting />
-            <div class="cards">
-              <UsersAwardsTable />
-              <div class="card">
-                <img src="./images/spiderman.png" alt="" />
-                <div class="card-info">
-                  <h2>Spiderman Miles Morales</h2>
-                  <p>PS5 Version</p>
-                  <div class="progress"></div>
+              <div className="card">
+                <ProgressBar now={60} />
+                <ProgressBar animated now={45} />
+                <div>
+                  <ProgressBar striped now={20} />
+                  <ProgressBar striped variant="warning" now={60} />
+                  <ProgressBar striped variant="danger" now={80} />
+                  <ProgressBar striped variant="info" now={80} />
+                  <ProgressBar striped variant="success" now={80} />
                 </div>
-                <h2 class="percentage">60%</h2>
+              </div>
+              <Greeting />
+              <div class="cards">
+                <UsersAwardsTable />
+                <div class="card">
+                  <img src="./images/spiderman.png" alt="" />
+                  <div class="card-info">
+                    <h2>Spiderman Miles Morales</h2>
+                    <p>PS5 Version</p>
+                    <div class="progress"></div>
+                  </div>
+                  <h2 class="percentage">60%</h2>
+                </div>
               </div>
             </div>
-            <Exercises />
-          </div>
-        </section>
-      </main>
-      {/* <div>
-        <button onClick={notify}>Notify !</button>
-        <ToastContainer position="bottom-right" hideProgressBar={true} />
-      </div> */}
-      <Alarm />
+          </section>
+        </main>
+        <Alarm />
+      </Router>
     </body>
   );
 }

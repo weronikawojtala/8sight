@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "react-bootstrap";
 
 function Card({ person }) {
   return (
@@ -6,6 +7,7 @@ function Card({ person }) {
       <div>
         <h2>{person.name}</h2>
         <p>{person.email}</p>
+        {/* <Button></Button> */}
       </div>
     </div>
   );

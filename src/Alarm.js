@@ -1,13 +1,55 @@
-import { useState, useEffect } from "react";
+import { React, useRef, useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import alertSound from "./sounds/alert_high-intensity.wav";
 
-const notify = () => toast("It's time!");
+const alertAudio = new Audio(alertSound);
+const playAudio = (file) => {
+  file.play();
+};
 
 const Alarm = () => {
   const [currentTime, setCurrentTime] = useState("");
   const [alarmTime, setAlarmTime] = useState("");
   const [alarmMessage, setAlarmMessage] = useState("");
+  const [numberOfAlerts, setNumberOfAlerts] = useState(0);
+
+  // let number = document.getElementsByClassName("Toastify__toast").length;
+  // console.log("Number of alerts", numberOfAlerts);
+  //const customId = "custom-id-yes";
+  const notify = () =>
+    toast("It's time!", {
+      // toastId: customId,
+      onOpen: () => {
+        playAudio(alertAudio);
+        checkNumberOfAlerts();
+        notificationCount(numberOfAlerts);
+      },
+      onClose: () => {
+        checkNumberOfAlerts();
+        notificationCount(numberOfAlerts);
+      },
+    });
+
+  const notificationCount = (number) => {
+    //number = number + 1;
+    console.log("Number z funkcji", number);
+    const pattern = /^\(\d+\)/;
+    if (number === 0 || pattern.test(document.title)) {
+      document.title = document.title.replace(
+        pattern,
+        number === 0 ? "" : "(" + number + ")"
+      );
+    } else {
+      document.title = "(" + number + ")" + " " + document.title;
+    }
+  };
+
+  const checkNumberOfAlerts = () => {
+    let number = document.getElementsByClassName("Toastify__toast").length;
+    setNumberOfAlerts(number);
+    console.log("Number of alerts w hooku", numberOfAlerts);
+  };
 
   const checkAlarmClock = () => {
     if (alarmTime == "undefined" || !alarmTime) {
@@ -17,19 +59,36 @@ const Alarm = () => {
       if (currentTime === alarmTime) {
         notify();
       } else {
-        console.log("not yet");
+        //console.log("not yet");
       }
     }
   };
+  // const sprawdzam = () => {
+  //   setCurrentTime(new Date().toLocaleTimeString("en-US", { hour12: false }));
+  // };
 
   // const clock = setInterval(setCurrentTime(), 1000);
   // const interval = setInterval(checkAlarmClock(), 1000);
 
   useEffect(() => {
+    const clock = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString("en-US", { hour12: false }));
+      //checkAlarmClock();
+    }, 1000);
+    checkNumberOfAlerts();
+    notificationCount(numberOfAlerts);
+    // const interval_time = setInterval(() => {
+    //   checkAlarmClock();
+    // }, 1000);
     //clearInterval(clock);
     //clearInterval(interval);
-    setCurrentTime(new Date().toLocaleTimeString("en-US", { hour12: false }));
+    // sprawdzam();
     checkAlarmClock();
+    //console.log("sprawdzam");
+    return () => {
+      clearInterval(clock);
+      // clearInterval(interval_time);
+    };
   });
   // }, [clock, interval]);
 
@@ -47,7 +106,13 @@ const Alarm = () => {
       <form>
         <input type="time" onChange={setAlarm}></input>
       </form>
-      <ToastContainer position="bottom-right" hideProgressBar={true} />
+      <button onClick={notify}>Click on me a lot!</button>
+      <ToastContainer
+        id="toast-container"
+        position="bottom-right"
+        hideProgressBar={true}
+        autoClose={false}
+      />
     </div>
   );
 };
