@@ -28,10 +28,21 @@ import Exercise from "./Exercise";
 import { ToastContainer, toast } from "react-toastify";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Profile from "./Profile";
+import Amplify from "aws-amplify";
+import config from "./aws-exports";
+import {
+  withAuthenticator,
+  AmplifyAuthenticator,
+  AmplifySignIn,
+  AmplifySignUp,
+  AmplifySignOut,
+} from "@aws-amplify/ui-react";
 import "react-toastify/dist/ReactToastify.css";
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 </style>;
+
+Amplify.configure(config);
 
 const initialTime = 60 * 1000; // initial time in milliseconds, defaults to 60000
 const interval = 1000;
@@ -85,18 +96,31 @@ function App() {
   }, []);
 
   return (
-    <body>
-      <Router>
-        <Nav />
-        <main>
-          <section class="glass">
-            <div class="dashboard">
-              {/* <div class="user">
+    <AmplifyAuthenticator>
+      <AmplifySignIn
+        headerText="My Custom Sign In Text"
+        slot="sign-in"
+      ></AmplifySignIn>
+      <AmplifySignUp
+        slot="sign-up"
+        formFields={[
+          { type: "username" },
+          { type: "password" },
+          { type: "email" },
+        ]}
+      ></AmplifySignUp>
+      <body>
+        <Router>
+          <Nav />
+          <main>
+            <section class="glass">
+              <div class="dashboard">
+                {/* <div class="user">
                 <img src="./images/avatar.png" alt="" />
                 <h3>Simo Edwin</h3>
                 <p>Pro Member</p>
               </div> */}
-              {/* <div class="links">
+                {/* <div class="links">
                 <div class="link">
                   <img src="./images/twitch.png" alt="" />
                   <h2>Streams</h2>
@@ -114,115 +138,126 @@ function App() {
                   <h2>Library</h2>
                 </div>
               </div> */}
-              {/* <div class="pro">
+                {/* <div class="pro">
               <h2>Join pro for free games.</h2>
               <img src="./images/controller.png" alt="" />
             </div> */}
-            </div>
-            <div class="games">
-              <div class="status">
-                <Switch>
-                  <Route path="/" exact component={Greeting} />
-                  <Route path="/profile" component={Profile} />
-                  <Route path="/exercises" exact component={Exercises} />
-                  <Route path="/exercises/:id" component={Exercise} />
-                </Switch>
               </div>
-              <Button className="btn" size="lg">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                button
-              </Button>
-              <p>Time left: {timeLeft}</p>
+              <div class="games">
+                <div class="status">
+                  <Switch>
+                    <Route path="/" exact component={Greeting} />
+                    <Route path="/profile" component={Profile} />
+                    <Route path="/exercises" exact component={Exercises} />
+                    <Route path="/exercises/:id" component={Exercise} />
+                  </Switch>
+                </div>
+                <Button className="btn" size="lg">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  button
+                </Button>
+                <p>Time left: {timeLeft}</p>
 
-              <button onClick={restart}>Restart counter with 42 seconds</button>
-              <div className="timer">
-                <CountdownCircleTimer
-                  {...timerProps}
-                  colors={[["#7E2E84"]]}
-                  duration={daysDuration}
-                  initialRemainingTime={remainingTime}
-                >
-                  {({ elapsedTime }) =>
-                    renderTime("days", getTimeDays(daysDuration - elapsedTime))
-                  }
-                </CountdownCircleTimer>
-                <CountdownCircleTimer
-                  {...timerProps}
-                  colors={[["#D14081"]]}
-                  duration={daySeconds}
-                  initialRemainingTime={remainingTime % daySeconds}
-                  onComplete={(totalElapsedTime) => [
-                    remainingTime - totalElapsedTime > hourSeconds,
-                  ]}
-                >
-                  {({ elapsedTime }) =>
-                    renderTime("hours", getTimeHours(daySeconds - elapsedTime))
-                  }
-                </CountdownCircleTimer>
-                <CountdownCircleTimer
-                  {...timerProps}
-                  colors={[["#EF798A"]]}
-                  duration={hourSeconds}
-                  initialRemainingTime={remainingTime % hourSeconds}
-                  onComplete={(totalElapsedTime) => [
-                    remainingTime - totalElapsedTime > minuteSeconds,
-                  ]}
-                >
-                  {({ elapsedTime }) =>
-                    renderTime(
-                      "minutes",
-                      getTimeMinutes(hourSeconds - elapsedTime)
-                    )
-                  }
-                </CountdownCircleTimer>
-                <CountdownCircleTimer
-                  {...timerProps}
-                  colors={[["#218380"]]}
-                  duration={minuteSeconds}
-                  initialRemainingTime={remainingTime % minuteSeconds}
-                  onComplete={(totalElapsedTime) => [
-                    remainingTime - totalElapsedTime > 0,
-                  ]}
-                >
-                  {({ elapsedTime }) =>
-                    renderTime("seconds", getTimeSeconds(elapsedTime))
-                  }
-                </CountdownCircleTimer>
-              </div>
-              <div className="card">
-                <ProgressBar now={60} />
-                <ProgressBar animated now={45} />
-                <div>
-                  <ProgressBar striped now={20} />
-                  <ProgressBar striped variant="warning" now={60} />
-                  <ProgressBar striped variant="danger" now={80} />
-                  <ProgressBar striped variant="info" now={80} />
-                  <ProgressBar striped variant="success" now={80} />
+                <button onClick={restart}>
+                  Restart counter with 42 seconds
+                </button>
+                <div className="timer">
+                  <CountdownCircleTimer
+                    {...timerProps}
+                    colors={[["#7E2E84"]]}
+                    duration={daysDuration}
+                    initialRemainingTime={remainingTime}
+                  >
+                    {({ elapsedTime }) =>
+                      renderTime(
+                        "days",
+                        getTimeDays(daysDuration - elapsedTime)
+                      )
+                    }
+                  </CountdownCircleTimer>
+                  <CountdownCircleTimer
+                    {...timerProps}
+                    colors={[["#D14081"]]}
+                    duration={daySeconds}
+                    initialRemainingTime={remainingTime % daySeconds}
+                    onComplete={(totalElapsedTime) => [
+                      remainingTime - totalElapsedTime > hourSeconds,
+                    ]}
+                  >
+                    {({ elapsedTime }) =>
+                      renderTime(
+                        "hours",
+                        getTimeHours(daySeconds - elapsedTime)
+                      )
+                    }
+                  </CountdownCircleTimer>
+                  <CountdownCircleTimer
+                    {...timerProps}
+                    colors={[["#EF798A"]]}
+                    duration={hourSeconds}
+                    initialRemainingTime={remainingTime % hourSeconds}
+                    onComplete={(totalElapsedTime) => [
+                      remainingTime - totalElapsedTime > minuteSeconds,
+                    ]}
+                  >
+                    {({ elapsedTime }) =>
+                      renderTime(
+                        "minutes",
+                        getTimeMinutes(hourSeconds - elapsedTime)
+                      )
+                    }
+                  </CountdownCircleTimer>
+                  <CountdownCircleTimer
+                    {...timerProps}
+                    colors={[["#218380"]]}
+                    duration={minuteSeconds}
+                    initialRemainingTime={remainingTime % minuteSeconds}
+                    onComplete={(totalElapsedTime) => [
+                      remainingTime - totalElapsedTime > 0,
+                    ]}
+                  >
+                    {({ elapsedTime }) =>
+                      renderTime("seconds", getTimeSeconds(elapsedTime))
+                    }
+                  </CountdownCircleTimer>
                 </div>
-              </div>
-              <Greeting />
-              <div class="cards">
-                <UsersAwardsTable />
-                <div class="card">
-                  <img src="./images/spiderman.png" alt="" />
-                  <div class="card-info">
-                    <h2>Spiderman Miles Morales</h2>
-                    <p>PS5 Version</p>
-                    <div class="progress"></div>
+                <div className="card">
+                  <ProgressBar now={60} />
+                  <ProgressBar animated now={45} />
+                  <div>
+                    <ProgressBar striped now={20} />
+                    <ProgressBar striped variant="warning" now={60} />
+                    <ProgressBar striped variant="danger" now={80} />
+                    <ProgressBar striped variant="info" now={80} />
+                    <ProgressBar striped variant="success" now={80} />
                   </div>
-                  <h2 class="percentage">60%</h2>
+                </div>
+                <Greeting />
+                <div class="cards">
+                  <UsersAwardsTable />
+                  <div class="card">
+                    <img src="./images/spiderman.png" alt="" />
+                    <div class="card-info">
+                      <h2>Spiderman Miles Morales</h2>
+                      <p>PS5 Version</p>
+                      <div class="progress"></div>
+                    </div>
+                    <h2 class="percentage">60%</h2>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </main>
-        <Alarm />
-      </Router>
-    </body>
+            </section>
+            <AmplifySignOut />
+          </main>
+          <Alarm />
+        </Router>
+      </body>
+    </AmplifyAuthenticator>
   );
 }
 
 export default App;
+//export default withAuthenticator(App);
