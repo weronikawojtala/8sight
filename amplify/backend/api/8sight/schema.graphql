@@ -1,0 +1,50 @@
+type UserCollection @model @auth(rules: [{allow: public}]) @key(name: "byUser", fields: ["userID"]) @key(name: "byExercise", fields: ["exerciseID"]) {
+  id: ID!
+  userID: ID
+  exerciseID: ID
+}
+
+type UserAward @model @auth(rules: [{allow: public}]) @key(name: "byUser", fields: ["userID"]) @key(name: "byAward", fields: ["awardID"]) {
+  id: ID!
+  date: AWSDate
+  userID: ID
+  awardID: ID
+}
+
+type UserHistory @model @auth(rules: [{allow: public}]) @key(name: "byUser", fields: ["userID"]) @key(name: "byExercise", fields: ["exerciseID"]) {
+  id: ID!
+  done: Boolean
+  date: AWSDateTime
+  alert: AWSDateTime
+  numberOfCompleted: Int
+  userID: ID
+  exerciseID: ID
+}
+
+type Award @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  criteria: [Int]
+  UserAwards: [UserAward] @connection(keyName: "byAward", fields: ["id"])
+}
+
+type Exercise @model @auth(rules: [{allow: public}]) @key(name: "byUserHistory", fields: ["userhistoryID"]) {
+  id: ID!
+  name: String!
+  description: String!
+  time: Int
+  userhistoryID: ID
+  UserHistories: [UserHistory] @connection(keyName: "byExercise", fields: ["id"])
+  image: String
+  UserCollection: [UserCollection] @connection(keyName: "byExercise", fields: ["id"])
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  username: String!
+  lastLogin: AWSDate
+  UserHistory: [UserHistory] @connection(keyName: "byUser", fields: ["id"])
+  UserAwards: [UserAward] @connection(keyName: "byUser", fields: ["id"])
+  UserCollection: [UserCollection] @connection(keyName: "byUser", fields: ["id"])
+}
+ 

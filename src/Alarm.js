@@ -32,8 +32,7 @@ const Alarm = () => {
     });
 
   const notificationCount = (number) => {
-    //number = number + 1;
-    console.log("Number z funkcji", number);
+    //console.log("Number z funkcji", number);
     const pattern = /^\(\d+\)/;
     if (number === 0 || pattern.test(document.title)) {
       document.title = document.title.replace(
@@ -48,7 +47,7 @@ const Alarm = () => {
   const checkNumberOfAlerts = () => {
     let number = document.getElementsByClassName("Toastify__toast").length;
     setNumberOfAlerts(number);
-    console.log("Number of alerts w hooku", numberOfAlerts);
+    //console.log("Number of alerts w hooku", numberOfAlerts);
   };
 
   const checkAlarmClock = () => {

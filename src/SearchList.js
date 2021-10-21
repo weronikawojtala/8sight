@@ -1,12 +1,9 @@
 import React from "react";
 import Card from "./Card";
-import { Link } from "react-router-dom";
 
-function SearchList({ filteredPersons }) {
-  const filtered = filteredPersons.map((person) => (
-    <Link to={"/exercises/${person.id}"}>
-      <Card key={person.id} person={person} />
-    </Link>
+function SearchList({ filteredExercises }) {
+  const filtered = filteredExercises.map((ex) => (
+    <Card key={ex.id} exercise={ex} />
   ));
   return <div>{filtered}</div>;
 }

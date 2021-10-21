@@ -1,40 +1,21 @@
 import Search from "./Search";
-
-const initialDetails = [
-  {
-    id: 1,
-    name: "Jane Doe",
-    email: "janedoe@gmail.com",
-    address: "New Delhi, India",
-  },
-  {
-    id: 2,
-    name: "Mary Rosamund",
-    email: "agra@rosie.com",
-    address: "Tbilisi, India",
-  },
-  {
-    id: 3,
-    name: "Sherlock Watson",
-    email: "irene@johnlock.com",
-    address: "Baker Street, India",
-  },
-  {
-    id: 4,
-    name: "John Holmes",
-    email: "mary@johnlock.com",
-    address: "Baker Street, India",
-  },
-  {
-    id: 5,
-    name: "Mycroft Lestrade",
-    email: "britishgovt@gmail.com",
-    address: "London, India",
-  },
-];
+import { useEffect, useState } from "react";
+import { DataStore } from "@aws-amplify/datastore";
+import { Exercise } from "./models";
 
 const Exercises = () => {
-  return <Search details={initialDetails} />;
+  useEffect(() => {
+    getExercises();
+  }, []);
+
+  const [exercises, setExercises] = useState([]);
+
+  async function getExercises() {
+    const exercises = await DataStore.query(Exercise);
+    setExercises(exercises);
+  }
+
+  return <Search details={exercises} />;
 };
 
 export default Exercises;

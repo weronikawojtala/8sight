@@ -1,13 +1,32 @@
 import React from "react";
-import Button from "react-bootstrap";
+import { Button } from "react-bootstrap";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { Link } from "react-router-dom";
 
-function Card({ person }) {
+function Card({ exercise }) {
   return (
-    <div className="tc bg-light-green dib br3 pa3 ma2 grow bw2 shadow-5">
+    <div className="card">
       <div>
-        <h2>{person.name}</h2>
-        <p>{person.email}</p>
-        {/* <Button></Button> */}
+        <h2>{exercise.name}</h2>
+        <p>{exercise.description}</p>
+        <Link to={`/exercises/${exercise.id}`}>
+          <Button
+            className="btn"
+            size="lg"
+            type="button"
+            style={{ height: "40px", width: "40px" }}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+            <span />
+            <div>
+              <ArrowForwardIosIcon
+                style={{ margin: "-8px", marginBottom: "2px" }}
+              />
+            </div>
+          </Button>
+        </Link>
       </div>
     </div>
   );

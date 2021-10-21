@@ -1,228 +1,223 @@
 import "./App.css";
 import Button from "react-bootstrap/Button";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import Navbar from "react-bootstrap/Navbar";
-// import Nav from "react-bootstrap/Nav";
-import Form from "react-bootstrap/Form";
-import FormControl from "react-bootstrap/FormControl";
-import Container from "react-bootstrap/Container";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from "react";
-import { Toast } from "react-bootstrap";
-import { Row, Col } from "react-bootstrap";
-import { Offcanvas } from "bootstrap";
-import MenuIcon from "@mui/icons-material/Menu";
-//import Carousel from "react-bootstrap/Carousel";
-import useCountDown from "react-countdown-hook";
+import { useState, useEffect } from "react";
 //import Backdrop from "@mui/core/Backdrop";
 import React from "react";
-import { CountdownCircleTimer } from "react-countdown-circle-timer";
 //import i1 from "./img/2.jpg";
 import Greeting from "./Greeting";
 import Alarm from "./Alarm";
 import Exercises from "./Exercises";
-import UsersAwardsTable from "./UsersAwardsTable";
 import Nav from "./Nav";
-import Exercise from "./Exercise";
+import SingleExercise from "./SingleExercise";
+import { DataStore } from "@aws-amplify/datastore";
+import { UserHistory } from "./models";
+import { Exercise } from "./models";
 import { ToastContainer, toast } from "react-toastify";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useParams,
+} from "react-router-dom";
 import Profile from "./Profile";
+import Timer from "./Timer";
 import Amplify from "aws-amplify";
 import config from "./aws-exports";
 import {
-  withAuthenticator,
   AmplifyAuthenticator,
   AmplifySignIn,
   AmplifySignUp,
-  AmplifySignOut,
 } from "@aws-amplify/ui-react";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthState, onAuthUIStateChange } from "@aws-amplify/ui-components";
+import awsconfig from "./aws-exports";
+import { User } from "./models";
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 </style>;
 
 Amplify.configure(config);
-
-const initialTime = 60 * 1000; // initial time in milliseconds, defaults to 60000
-const interval = 1000;
-
-const minuteSeconds = 60;
-const hourSeconds = 3600;
-const daySeconds = 86400;
-
-const timerProps = {
-  isPlaying: true,
-  size: 120,
-  strokeWidth: 6,
-};
-
-const renderTime = (dimension, time) => {
-  return (
-    <div className="time-wrapper">
-      <div className="time">{time}</div>
-      <div>{dimension}</div>
-    </div>
-  );
-};
-
-const getTimeSeconds = (time) => (minuteSeconds - time) | 0;
-const getTimeMinutes = (time) => ((time % hourSeconds) / minuteSeconds) | 0;
-const getTimeHours = (time) => ((time % daySeconds) / hourSeconds) | 0;
-const getTimeDays = (time) => (time / daySeconds) | 0;
-
 function App() {
-  const stratTime = Date.now() / 1000; // use UNIX timestamp in seconds
-  const endTime = stratTime + 243248; // use UNIX timestamp in seconds
+  Amplify.configure(awsconfig);
 
-  const remainingTime = endTime - stratTime;
-  const days = Math.ceil(remainingTime / daySeconds);
-  const daysDuration = days * daySeconds;
-
-  const [timeLeft, { start, pause, resume, reset }] = useCountDown(
-    initialTime,
-    interval
-  );
+  const [authState, setAuthState] = React.useState();
+  const [user, setUser] = React.useState();
+  const [visible, setVisible] = useState(true);
 
   React.useEffect(() => {
-    start();
+    return onAuthUIStateChange((nextAuthState, authData) => {
+      setAuthState(nextAuthState);
+      setUser(authData);
+      if (authData === undefined) {
+      } else {
+        let userData = authData.username;
+        findUser(userData);
+        if (visible === true) {
+          const toastCustomId = "custom-id";
+          toast("Welcome back " + authData.username + " 👀", {
+            toastId: toastCustomId,
+            position: "top-center",
+            autoClose: 3000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setVisible(false);
+        }
+      }
+    });
   }, []);
 
-  const restart = React.useCallback(() => {
-    // you can start existing timer with an arbitrary value
-    // if new value is not passed timer will start with initial value
-    const newTime = 42 * 1000;
-    start(newTime);
-  }, []);
+  async function findUser(username) {
+    const foundUser = await DataStore.query(User, (u) =>
+      u.username("eq", username)
+    );
+    //console.log("Found user:", foundUser);
+    if (foundUser.length > 0) {
+      setUser(foundUser[0]);
+      var currentdate = new Date();
 
-  return (
-    <AmplifyAuthenticator>
-      <AmplifySignIn
-        headerText="My Custom Sign In Text"
-        slot="sign-in"
-      ></AmplifySignIn>
-      <AmplifySignUp
-        slot="sign-up"
-        formFields={[
-          { type: "username" },
-          { type: "password" },
-          { type: "email" },
-        ]}
-      ></AmplifySignUp>
-      <body>
+      var datetime =
+        currentdate.getFullYear() +
+        "-" +
+        (currentdate.getMonth() + 1) +
+        "-" +
+        currentdate.getDate();
+      const copy = User.copyOf(foundUser[0], (copy) => {
+        copy.lastLogin = datetime;
+      });
+      //console.log(copy);
+      await DataStore.save(copy);
+    }
+  }
+
+  /* Models in DataStore are immutable. To update a record you must use the copyOf function
+ to apply updates to the item’s fields rather than mutating the instance directly */
+
+  // async function updateUser() {
+  //   await DataStore.save(
+  //     User.copyOf(CURRENT_ITEM, (item) => {
+  //       // Update the values on {item} variable to update DataStore entry
+  //     })
+  //   );
+  // }
+
+  async function onQuery() {
+    // const exercise = await DataStore.query(Exercise, (u) =>
+    //   u.name("eq", "Test")
+    // );
+
+    // console.log(exercise[0].id);
+
+    const typedUser = await DataStore.query(Exercise, (u) =>
+      u.name("eq", "Test")
+    );
+
+    //console.log(typedUser);
+
+    const exercise = await DataStore.query(UserHistory, (u) =>
+      u.exerciseID("eq", typedUser[0].id).done("eq", false)
+    );
+
+    //console.log(exercise[0].date);
+
+    let fields = exercise[0].date;
+    let dbdate = fields.split("T");
+    // console.log(dbdate);
+    let datefromslice = dbdate[1].slice(0, dbdate[1].length - 1);
+    //console.log(datefromslice);
+
+    var currentdate = new Date();
+
+    var datetime =
+      currentdate.getFullYear() +
+      "-" +
+      (currentdate.getMonth() + 1) +
+      "-" +
+      currentdate.getDate() +
+      "T" +
+      currentdate.getHours() +
+      ":" +
+      currentdate.getMinutes() +
+      ":" +
+      currentdate.getSeconds() +
+      "Z";
+
+    //console.log(datetime);
+
+    // await DataStore.save(
+    //   new UserHistory({
+    //     userID: user.id,
+    //     done: true,
+    //     date: "1970-01-01T12:30:23.999Z",
+    //     alert: "1970-01-01T12:30:23.999Z",
+    //     numberOfCompleted: 1020,
+    //     exerciseID: exercise[0].id,
+    //   })
+    // );
+
+    // const original = await DataStore.query(User, (u) =>
+    //   u.username("eq", user.username)
+    // );
+
+    // console.log(original[0]);
+
+    // for (let i = 0; i < original.length; i++) {
+    //   DataStore.delete(original[i]);
+    // }
+    //DataStore.delete(original[0]);
+    //console.log(original[0]);
+    // const copy = User.copyOf(original[0], (copy) => {
+    //   copy.username = "weronika";
+    // });
+    // console.log(copy);
+    // await DataStore.save(copy);
+  }
+
+  async function createUser() {
+    await DataStore.save(
+      new User({
+        username: user.username,
+        lastLogin: new Date().toISOString().slice(0, 10),
+      })
+    );
+  }
+
+  return authState === AuthState.SignedIn && user ? (
+    <body>
+      <div className="App">
         <Router>
           <Nav />
           <main>
-            <section class="glass">
-              <div class="dashboard">
+            <section className="glass">
+              <div className="dashboard">
                 {/* <div class="user">
-                <img src="./images/avatar.png" alt="" />
-                <h3>Simo Edwin</h3>
-                <p>Pro Member</p>
-              </div> */}
-                {/* <div class="links">
-                <div class="link">
-                  <img src="./images/twitch.png" alt="" />
-                  <h2>Streams</h2>
-                </div>
-                <div class="link">
-                  <img src="./images/steam.png" alt="" />
-                  <h2>Games</h2>
-                </div>
-                <div class="link">
-                  <img src="./images/upcoming.png" alt="" />
-                  <h2>New</h2>
-                </div>
-                <div class="link">
-                  <img src="./images/library.png" alt="" />
-                  <h2>Library</h2>
-                </div>
-              </div> */}
-                {/* <div class="pro">
-              <h2>Join pro for free games.</h2>
-              <img src="./images/controller.png" alt="" />
-            </div> */}
+  //                 <img src="./images/avatar.png" alt="" />
+  //                 <h3>Simo Edwin</h3>
+  //                 <p>Pro Member</p>
+  //               </div> */}
               </div>
-              <div class="games">
-                <div class="status">
+              <div className="games">
+                <div className="status">
                   <Switch>
-                    <Route path="/" exact component={Greeting} />
-                    <Route path="/profile" component={Profile} />
-                    <Route path="/exercises" exact component={Exercises} />
-                    <Route path="/exercises/:id" component={Exercise} />
+                    {/* <Route path="/" exact component={Greeting} /> */}
+                    <Route path="/" exact>
+                      <Greeting user={user} />
+                    </Route>
+                    <Route path="/profile">
+                      <Profile user={user} />
+                    </Route>
+                    <Route path="/exercises" exact>
+                      <Exercises user={user} />
+                    </Route>
+                    <Route path="/exercises/:id">
+                      <SingleExercise user={user} />
+                    </Route>
                   </Switch>
-                </div>
-                <Button className="btn" size="lg">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  button
-                </Button>
-                <p>Time left: {timeLeft}</p>
-
-                <button onClick={restart}>
-                  Restart counter with 42 seconds
-                </button>
-                <div className="timer">
-                  <CountdownCircleTimer
-                    {...timerProps}
-                    colors={[["#7E2E84"]]}
-                    duration={daysDuration}
-                    initialRemainingTime={remainingTime}
-                  >
-                    {({ elapsedTime }) =>
-                      renderTime(
-                        "days",
-                        getTimeDays(daysDuration - elapsedTime)
-                      )
-                    }
-                  </CountdownCircleTimer>
-                  <CountdownCircleTimer
-                    {...timerProps}
-                    colors={[["#D14081"]]}
-                    duration={daySeconds}
-                    initialRemainingTime={remainingTime % daySeconds}
-                    onComplete={(totalElapsedTime) => [
-                      remainingTime - totalElapsedTime > hourSeconds,
-                    ]}
-                  >
-                    {({ elapsedTime }) =>
-                      renderTime(
-                        "hours",
-                        getTimeHours(daySeconds - elapsedTime)
-                      )
-                    }
-                  </CountdownCircleTimer>
-                  <CountdownCircleTimer
-                    {...timerProps}
-                    colors={[["#EF798A"]]}
-                    duration={hourSeconds}
-                    initialRemainingTime={remainingTime % hourSeconds}
-                    onComplete={(totalElapsedTime) => [
-                      remainingTime - totalElapsedTime > minuteSeconds,
-                    ]}
-                  >
-                    {({ elapsedTime }) =>
-                      renderTime(
-                        "minutes",
-                        getTimeMinutes(hourSeconds - elapsedTime)
-                      )
-                    }
-                  </CountdownCircleTimer>
-                  <CountdownCircleTimer
-                    {...timerProps}
-                    colors={[["#218380"]]}
-                    duration={minuteSeconds}
-                    initialRemainingTime={remainingTime % minuteSeconds}
-                    onComplete={(totalElapsedTime) => [
-                      remainingTime - totalElapsedTime > 0,
-                    ]}
-                  >
-                    {({ elapsedTime }) =>
-                      renderTime("seconds", getTimeSeconds(elapsedTime))
-                    }
-                  </CountdownCircleTimer>
                 </div>
                 <div className="card">
                   <ProgressBar now={60} />
@@ -235,29 +230,36 @@ function App() {
                     <ProgressBar striped variant="success" now={80} />
                   </div>
                 </div>
-                <Greeting />
-                <div class="cards">
-                  <UsersAwardsTable />
-                  <div class="card">
+                <div className="cards">
+                  <div className="card">
                     <img src="./images/spiderman.png" alt="" />
-                    <div class="card-info">
+                    <div className="card-info">
                       <h2>Spiderman Miles Morales</h2>
                       <p>PS5 Version</p>
-                      <div class="progress"></div>
+                      <div className="progress"></div>
                     </div>
-                    <h2 class="percentage">60%</h2>
+                    <h2 className="percentage">60%</h2>
                   </div>
                 </div>
               </div>
             </section>
-            <AmplifySignOut />
           </main>
           <Alarm />
         </Router>
-      </body>
+      </div>
+    </body>
+  ) : (
+    <AmplifyAuthenticator>
+      <AmplifySignIn headerText="8sight" slot="sign-in"></AmplifySignIn>
+      <AmplifySignUp
+        slot="sign-up"
+        formFields={[
+          { type: "username" },
+          { type: "password" },
+          { type: "email" },
+        ]}
+      ></AmplifySignUp>
     </AmplifyAuthenticator>
   );
 }
-
 export default App;
-//export default withAuthenticator(App);

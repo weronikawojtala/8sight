@@ -1,11 +1,11 @@
 import Slideshow from "./Slideshow";
 
-const Greeting = () => {
+const Greeting = (props) => {
+  console.log(props.user);
   return (
-    
-    <div class="cards">
-      <div class="card">
-        <div class="card-info">
+    <div className="cards">
+      <div className="card">
+        <div className="card-info">
           <h2 className="subheader">Welcome in 8SIGHT</h2>
           <p className="welcome-page">
             8SIGHT is an app that allows users to train their eyesight right in
@@ -14,8 +14,8 @@ const Greeting = () => {
           </p>
         </div>
       </div>
-      <div class="card">
-        <div class="card-info">
+      <div className="card">
+        <div className="card-info">
           <h2 className="subheader">Curious about eyesight?</h2>
           <p className="welcome-page">
             Below you can find some interesting scientific facts about eye's

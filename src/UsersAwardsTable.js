@@ -4,8 +4,8 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 
 const UsersAwardsTable = () => {
   return (
-    <div class="card">
-      <div class="card-info">
+    <div className="card">
+      <div className="card-info">
         <Table borderless>
           <thead>
             <tr>
