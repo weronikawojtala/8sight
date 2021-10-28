@@ -49,6 +49,7 @@ function App() {
   const [visible, setVisible] = useState(true);
   const [history, setHistory] = useState([]);
   const [alertDates, setAlertDates] = useState("");
+  const [exercises, setExercises] = useState([]);
 
   useEffect(() => {
     return onAuthUIStateChange((nextAuthState, authData) => {
@@ -202,11 +203,13 @@ function App() {
       u.userID("eq", user.id);
     });
     let alerts = [];
+    let exerciseIDs = [];
     for (var i = 0; i < h.length; i++) {
       alerts.push(h[i].alert);
+      exerciseIDs.push(h[i].exerciseID);
     }
+    setExercises(exerciseIDs);
     setAlertDates(alerts);
-    console.log(alerts);
   }
 
   return authState === AuthState.SignedIn && user ? (
@@ -272,7 +275,7 @@ function App() {
               </div>
             </section>
           </main>
-          <Alarm alarms={alertDates} />
+          <Alarm alarms={alertDates} exercises={exercises} />
         </Router>
       </div>
     </body>
