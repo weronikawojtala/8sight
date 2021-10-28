@@ -34,13 +34,6 @@ main {
 
 .glass {
   background: white;
-  /* tło w kropki */
-  /* background-color: #ffffff;
-  /* opacity: 0.4; */
-  /*background-image: radial-gradient(#084407 0.75px, transparent 0.75px),
-    radial-gradient(#084407 0.75px, #ffffff 0.75px);
-  background-size: 30px 30px;
-  background-position: 0 0, 15px 15px; */
   min-height: 70vh;
   width: 75%;
   background: linear-gradient(
@@ -48,18 +41,18 @@ main {
     rgba(255, 255, 255, 0.7),
     rgba(255, 255, 255, 0.5)
   );
-  /* border-radius: 2rem; */
   z-index: 2;
   backdrop-filter: blur(2rem);
   display: flex;
 }
 
 .dashboard {
+  margin-top: 5.5rem;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: start;
   text-align: center;
   background: linear-gradient(
     to right bottom,
@@ -68,6 +61,16 @@ main {
   );
   /* border-radius: 2rem; */
 }
+
+.profile-info {
+  opacity: 0.7;
+}
+
+.profile-info:hover {
+  transition: 0.8s ease;
+  opacity: 1;
+}
+
 .link {
   display: flex;
   margin: 2rem 0rem;
@@ -94,9 +97,38 @@ main {
     rgba(255, 255, 255, 0.3)
   );
   border: none;
-  width: 50%;
   padding: 0.5rem;
-  /* border-radius: 2rem; */
+}
+
+.search-label {
+  text-align: center;
+  margin: auto;
+  color: #2e0927;
+  font-size: 1.2rem;
+  display: block;
+  transition: all 0.3s;
+  transform: translateY(0.5rem);
+}
+
+.search-input {
+  color: #2e0927;
+  font-size: 1.2rem;
+  padding: 1.5rem 2rem;
+  border-radius: 0.2rem;
+  border: none;
+  display: block;
+  transition: all 0.3s;
+}
+
+.search-input:focus-visible {
+  outline-color: transparent;
+}
+
+.search-input:placeholder-shown + .search-label {
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transform: translateY(0rem);
+  transform: translateY(0rem);
 }
 
 .games {
@@ -132,6 +164,8 @@ main {
 .note {
   background: rgba(194, 194, 194, 0.4);
   border-radius: 0.2rem;
+  margin: 10px;
+  padding: 20px;
 }
 
 .slide {
@@ -183,23 +217,6 @@ main {
   background: linear-gradient(to right top, #65dfc9, #6cdbeb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-/* Color Theme Swatches in Hex */
-.Circus-III-1-hex {
-  color: #2e0927;
-}
-.Circus-III-2-hex {
-  color: #d90000;
-}
-.Circus-III-3-hex {
-  color: #ff2d00;
-}
-.Circus-III-4-hex {
-  color: #ff8c00;
-}
-.Circus-III-5-hex {
-  color: #04756f;
 }
 
 .btn {
@@ -346,11 +363,18 @@ main {
   background-color: #04756f;
 }
 
-h5 {
+h5,
+a.nav-link,
+a.nav-link:hover,
+a.nav-link:focus {
   color: white;
   font-family: "Raleway", sans-serif;
   letter-spacing: 2px;
   text-transform: uppercase;
+  list-style: none;
+}
+.rotated {
+  background-color: rgba(122, 122, 122, 0.424);
 }
 
 h1 {
@@ -407,6 +431,35 @@ li .dropdown-menu:hover {
   font-size: 40px;
 }
 
+.to-complete {
+  border: 1px solid chartreuse;
+}
+
+amplify-authenticator {
+  background: linear-gradient(to right top, #d90000, #db7e13);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 100vh;
+  width: 100vw;
+  /* background-color: black; */
+  border-radius: 0;
+  padding: 0px;
+}
+
+:root {
+  --amplify-primary-color: #ffffff;
+  --amplify-primary-tint: #ffffff;
+  --amplify-secondary-tint: #ffffff;
+  --amplify-primary-shade: #ffffff;
+  --amplify-font-family: "Poppins", sans-serif;
+  --amplify-grey: #e0573e;
+  --amplify-white: rgba(46, 9, 39, 0.9);
+  --amplify-secondary-color: #ffffff;
+  --amplify-text-md-sub: 1.5rem;
+}
+
 /* .info {
   max-width: 360px;
   margin: 40px auto 0;
@@ -425,3 +478,32 @@ li .dropdown-menu:hover {
   text-align: center;
   padding-top: 40px;
 } */
+
+.opening {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  font-family: "Raleway", sans-serif;
+  color: black;
+  font-size: 80px;
+  letter-spacing: 20px;
+  cursor: pointer;
+  filter: blur(5px);
+  transition: 0.6s all;
+}
+
+.opening:hover {
+  filter: blur(0);
+}
+
+.opening_brackets {
+  color: #db7e13;
+  font-size: 160px;
+}
+.login_btn {
+  position: absolute;
+  transform: translate(-70%, 200%);
+  left: 50%;
+  top: 50%;
+}

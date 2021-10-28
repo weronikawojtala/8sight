@@ -7,8 +7,15 @@ function Card({ exercise }) {
   return (
     <div className="card">
       <div>
-        <h2>{exercise.name}</h2>
-        <p>{exercise.description}</p>
+        <h2 style={{ textAlign: "center" }}>{exercise.name}</h2>
+        <div className="note">
+          <p>
+            <b>Description</b>: {exercise.description}
+          </p>
+          <p>
+            <b>Time needed to complete</b>: {exercise.time} seconds
+          </p>
+        </div>
         <Link to={`/exercises/${exercise.id}`}>
           <Button
             className="btn"

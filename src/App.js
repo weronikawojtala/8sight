@@ -10,6 +10,7 @@ import Greeting from "./Greeting";
 import Alarm from "./Alarm";
 import Exercises from "./Exercises";
 import Nav from "./Nav";
+import TestNav from "./TestNav";
 import SingleExercise from "./SingleExercise";
 import { DataStore } from "@aws-amplify/datastore";
 import { UserHistory } from "./models";
@@ -22,6 +23,7 @@ import {
   useParams,
 } from "react-router-dom";
 import Profile from "./Profile";
+import Opening from "./Opening";
 import Timer from "./Timer";
 import Amplify from "aws-amplify";
 import config from "./aws-exports";
@@ -45,8 +47,10 @@ function App() {
   const [authState, setAuthState] = React.useState();
   const [user, setUser] = React.useState();
   const [visible, setVisible] = useState(true);
+  const [history, setHistory] = useState([]);
+  const [alertDates, setAlertDates] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     return onAuthUIStateChange((nextAuthState, authData) => {
       setAuthState(nextAuthState);
       setUser(authData);
@@ -71,6 +75,12 @@ function App() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (user !== undefined) {
+      getUserHistory();
+    }
+  }, [user]);
 
   async function findUser(username) {
     const foundUser = await DataStore.query(User, (u) =>
@@ -187,24 +197,42 @@ function App() {
     );
   }
 
+  async function getUserHistory() {
+    const h = await DataStore.query(UserHistory, (u) => {
+      u.userID("eq", user.id);
+    });
+    let alerts = [];
+    for (var i = 0; i < h.length; i++) {
+      alerts.push(h[i].alert);
+    }
+    setAlertDates(alerts);
+    console.log(alerts);
+  }
+
   return authState === AuthState.SignedIn && user ? (
     <body>
       <div className="App">
         <Router>
-          <Nav />
+          <TestNav />
           <main>
             <section className="glass">
               <div className="dashboard">
-                {/* <div class="user">
-  //                 <img src="./images/avatar.png" alt="" />
-  //                 <h3>Simo Edwin</h3>
-  //                 <p>Pro Member</p>
-  //               </div> */}
+                <div class="card profile-info">
+                  <img src="./images/avatar.png" alt="" />
+                  <h3>{user.username}</h3>
+                  <p>
+                    <b>Member</b>
+                  </p>
+                </div>
+                <div className="card">
+                  <h3>Rewards</h3>
+                </div>
               </div>
               <div className="games">
                 <div className="status">
                   <Switch>
                     {/* <Route path="/" exact component={Greeting} /> */}
+                    {/* <Route path="/" exact component={Opening} /> */}
                     <Route path="/" exact>
                       <Greeting user={user} />
                     </Route>
@@ -232,25 +260,27 @@ function App() {
                 </div>
                 <div className="cards">
                   <div className="card">
-                    <img src="./images/spiderman.png" alt="" />
+                    {/* <img src="./images/spiderman.png" alt="" />
                     <div className="card-info">
                       <h2>Spiderman Miles Morales</h2>
                       <p>PS5 Version</p>
                       <div className="progress"></div>
                     </div>
-                    <h2 className="percentage">60%</h2>
+                    <h2 className="percentage">60%</h2> */}
                   </div>
                 </div>
               </div>
             </section>
           </main>
-          <Alarm />
+          <Alarm alarms={alertDates} />
         </Router>
       </div>
     </body>
   ) : (
+    // <Opening />
     <AmplifyAuthenticator>
-      <AmplifySignIn headerText="8sight" slot="sign-in"></AmplifySignIn>
+      <Opening />
+      <AmplifySignIn headerText="8SIGHT" slot="sign-in"></AmplifySignIn>
       <AmplifySignUp
         slot="sign-up"
         formFields={[

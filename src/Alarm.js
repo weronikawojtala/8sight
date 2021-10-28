@@ -8,11 +8,12 @@ const playAudio = (file) => {
   file.play();
 };
 
-const Alarm = () => {
+const Alarm = (props) => {
   const [currentTime, setCurrentTime] = useState("");
   const [alarmTime, setAlarmTime] = useState("");
   const [alarmMessage, setAlarmMessage] = useState("");
   const [numberOfAlerts, setNumberOfAlerts] = useState(0);
+  const [currentDate, setCurrentDate] = useState("");
 
   // let number = document.getElementsByClassName("Toastify__toast").length;
   // console.log("Number of alerts", numberOfAlerts);
@@ -90,6 +91,19 @@ const Alarm = () => {
     };
   });
   // }, [clock, interval]);
+
+  useEffect(() => {
+    var currentdate = new Date();
+
+    var datetime =
+      currentdate.getFullYear() +
+      "-" +
+      (currentdate.getMonth() + 1) +
+      "-" +
+      currentdate.getDate();
+
+    setCurrentDate(datetime);
+  }, []);
 
   const setAlarm = (event) => {
     event.preventDefault();

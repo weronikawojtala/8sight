@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Scroll from "./Scroll";
 import SearchList from "./SearchList";
 
 function Search({ details }) {
@@ -14,23 +13,25 @@ function Search({ details }) {
   };
 
   function searchList() {
-    return (
-      <Scroll>
-        <SearchList filteredExercises={filteredExercises} />
-      </Scroll>
-    );
+    return <SearchList filteredExercises={filteredExercises} />;
   }
 
   return (
     <div style={{ marginTop: "4vh" }}>
       <div className="cards">
         <div>
-          <h2>Search exercises</h2>
+          <h2 style={{ textAlign: "center" }}>Search exercises</h2>
           <input
             type="search"
+            class="search-input"
+            id="search"
             placeholder="Exercise's name"
             onChange={handleChange}
+            style={{ margin: "auto" }}
           />
+          <label for="search" class="search-label">
+            Exercise's name
+          </label>
         </div>
         <div></div>
         {searchList()}

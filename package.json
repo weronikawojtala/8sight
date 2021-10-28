@@ -18,7 +18,7 @@
     "bootstrap": "^5.1.1",
     "feather-icons": "^4.28.0",
     "react": "^17.0.2",
-    "react-bootstrap": "^1.6.4",
+    "react-bootstrap": "^2.0.0-rc.1",
     "react-bootstrap-navbar-offcanvas": "^1.0.3",
     "react-countdown-circle-timer": "^2.5.4",
     "react-countdown-hook": "^1.1.0",

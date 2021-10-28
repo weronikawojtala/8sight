@@ -1,7 +1,6 @@
 import Slideshow from "./Slideshow";
 
 const Greeting = (props) => {
-  console.log(props.user);
   return (
     <div className="cards">
       <div className="card">

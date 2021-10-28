@@ -8,8 +8,9 @@ import deleteSound from "./sounds/navigation_transition-left.wav";
 import { findExercise } from "./findExercise";
 import { findExerciseInCollection } from "./findExerciseInCollection";
 import { DataStore } from "@aws-amplify/datastore";
-import { UserCollection } from "./models";
+import { UserCollection, UserHistory } from "./models";
 import { useRouteMatch } from "react-router-dom";
+import i1 from "./img/2.jpg";
 
 const likeAudio = new Audio(likeSound);
 const deleteAudio = new Audio(deleteSound);
@@ -35,7 +36,7 @@ async function deleteUserCollection(userCollectionID) {
 const SingleExercise = (props) => {
   const [disableLike, setDisableLike] = useState(false);
   const [disableDelete, setDisableDelete] = useState(false);
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(50);
 
   let match = useRouteMatch("/exercises/:id");
 
@@ -89,6 +90,36 @@ const SingleExercise = (props) => {
     }
   }
 
+  async function planExercise() {
+    const findUserHistory = await DataStore.query(UserHistory, (u) => {
+      u.exerciseID("eq", match.params.id);
+    });
+    const history = findUserHistory.filter(
+      (history) => history.userID === props.user.id
+    );
+
+    var currentdate = new Date();
+
+    var datetime =
+      currentdate.getFullYear() +
+      "-" +
+      (currentdate.getMonth() + 1) +
+      "-" +
+      currentdate.getDate() +
+      "T" +
+      currentdate.getHours() +
+      ":" +
+      currentdate.getMinutes() +
+      ":" +
+      currentdate.getSeconds() +
+      "Z";
+
+    const copy = UserHistory.copyOf(history[0], (copy) => {
+      copy.alert = datetime;
+    });
+    await DataStore.save(copy);
+  }
+
   return (
     <div className="card">
       <div className="card-info">
@@ -125,7 +156,22 @@ const SingleExercise = (props) => {
             <DeleteIcon style={{ margin: "-8px", marginBottom: "2px" }} />
           </div>
         </Button>
+        <div className="stylie">
+          <img
+            style={{ height: "100px" }}
+            className="d-block w-100"
+            src={i1}
+            alt=""
+          />
+        </div>
         <Timer time={time} />
+        <Button className="btn" onClick={planExercise}>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span />
+          Plan exercise
+        </Button>
       </div>
     </div>
   );
