@@ -1,59 +1,104 @@
 import Table from "react-bootstrap/Table";
 import { useEffect, useState } from "react";
 import { findUsersCollection } from "./findUsersCollection";
-import { findExercises } from "./findExercises";
+import { findExercise } from "./findExercise";
+import { User } from "./models";
 import { DataStore } from "@aws-amplify/datastore";
 import { UserHistory } from "./models";
+import { Spinner } from "reactstrap";
 
 const UsersExerciseTable = (props) => {
+  const [loading, setLoading] = useState(true);
   const [collection, setCollection] = useState([]);
+  const [IDs, setIDs] = useState([]);
   const [exercises, setExercises] = useState([]);
+  const [exerciseNames, setExerciseNames] = useState([]);
+  const [info, setInfo] = useState([]);
 
   useEffect(() => {
-    fetchUsersExercises();
+    const getCollection = async () => {
+      const foundUser = await DataStore.query(User, (u) =>
+        u.username("eq", props.user.username)
+      );
+      const usersCollection = await findUsersCollection(foundUser[0].id);
+      if (usersCollection === null) {
+        return;
+      } else {
+        setCollection(usersCollection);
+      }
+    };
+
+    getCollection();
   }, []);
 
-  async function fetchUsersExercises() {
-    getCollection();
-    const IDs = await getIDs();
-    await getHistory(IDs);
-  }
+  useEffect(() => {
+    const getIDs = async () => {
+      let exerciseIDs = [];
+      for (var i = 0; i < collection.length; i++) {
+        exerciseIDs.push(collection[i].id);
+      }
+      setIDs(exerciseIDs);
+    };
 
-  async function getCollection() {
-    const usersCollection = await findUsersCollection(props.user.id);
-    //console.log(usersCollection);
-    if (usersCollection === null) {
-      return;
-    }
-    setCollection(usersCollection);
-  }
+    getIDs(collection);
+  }, [collection]);
 
-  async function getIDs() {
-    let exerciseIDs = [];
-    //console.log(collection);
-    for (var i = 0; i < collection.length; i++) {
-      exerciseIDs.push(collection[i].id);
-    }
-    //console.log("exerciseIDs", exerciseIDs);
-    return exerciseIDs;
-  }
+  useEffect(() => {
+    const getHistory = async () => {
+      const ex = [];
+      for (var i = 0; i < IDs.length; i++) {
+        let model = await DataStore.query(UserHistory, (u) => {
+          u.exerciseID("eq", IDs[i]).userID("eq", props.user.id);
+        });
+        ex.push(model);
+      }
+      if (
+        typeof ex !== "undefined" &&
+        typeof ex !== "null" &&
+        ex.length !== 0
+      ) {
+        const filtered = ex[0].filter((e) => e.done === true);
+        setExercises(filtered);
+      }
+    };
 
-  async function getHistory(IDs) {
-    const ex = [];
-    //console.log("IDs", IDs);
-    for (var i = 0; i < IDs.length; i++) {
-      let model = await DataStore.query(UserHistory, (u) => {
-        u.exerciseID("eq", IDs[i]).userID("eq", props.user.id);
-      });
-      ex.push(model);
-    }
-    //console.log("ex", ex);
-    if (ex !== undefined) {
-      const filtered = ex[0].filter((e) => e.done === true);
-      console.log("Filtered", filtered);
-      setExercises(filtered);
-    }
-  }
+    getHistory(IDs);
+  }, [IDs]);
+
+  useEffect(() => {
+    const getNames = async () => {
+      const names = [];
+      for (var i = 0; i < exercises.length; i++) {
+        let name = await findExercise(exercises[i].exerciseID);
+        names.push(name.name);
+      }
+      setExerciseNames(names);
+    };
+
+    getNames();
+  }, [exercises]);
+
+  useEffect(() => {
+    var allInfo = [];
+
+    const getInfo = () => {
+      for (var i = 0; i < exercises.length; i++) {
+        allInfo.push([exercises[i], exerciseNames[i]]);
+      }
+      setInfo(allInfo);
+      setLoading(false);
+    };
+
+    getInfo();
+  }, [exerciseNames]);
+
+  const showSpinner = () => {
+    return (
+      <div className={"spinner-container"}>
+        <Spinner color="dark" />
+      </div>
+    );
+  };
 
   function changeDate(date) {
     let dbdate = date.split("T");
@@ -63,30 +108,34 @@ const UsersExerciseTable = (props) => {
     return newDate;
   }
 
-  return (
-    <div className="card">
-      <div className="card-info">
-        <Table borderless>
-          <thead>
-            <tr>
-              <th>Exercise name</th>
-              <th>Number of completed times</th>
-              <th>Date of last completed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {exercises.map((e) => (
-              <tr key={e.exerciseID + "_" + Math.random()}>
-                <td>{e.exerciseID}</td>
-                <td>{e.numberOfCompleted}</td>
-                <td>{changeDate(e)}</td>
+  if (loading) {
+    return showSpinner();
+  } else {
+    return (
+      <div className="card">
+        <div className="card-info">
+          <Table borderless>
+            <thead>
+              <tr>
+                <th>Exercise name</th>
+                <th>Number of completed times</th>
+                <th>Date of last completed</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {info.map((e) => (
+                <tr key={e[0].exerciseID + "_" + Math.random()}>
+                  <td>{e[1]}</td>
+                  <td>{e[0].numberOfCompleted}</td>
+                  <td>{changeDate(e[0].date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default UsersExerciseTable;

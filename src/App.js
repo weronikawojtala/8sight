@@ -91,17 +91,21 @@ function App() {
     if (foundUser.length > 0) {
       setUser(foundUser[0]);
       var currentdate = new Date();
-
+      var day = 0;
+      if (currentdate.getDate() < 10) {
+        day = "0" + currentdate.getDate();
+      } else {
+        day = currentdate.getDate();
+      }
       var datetime =
         currentdate.getFullYear() +
         "-" +
         (currentdate.getMonth() + 1) +
         "-" +
-        currentdate.getDate();
+        day;
       const copy = User.copyOf(foundUser[0], (copy) => {
         copy.lastLogin = datetime;
       });
-      //console.log(copy);
       await DataStore.save(copy);
     }
   }

@@ -165,6 +165,12 @@ const SingleExercise = (props) => {
           />
         </div>
         <Timer time={time} />
+        <input
+          type="datetime-local"
+          class="search-input"
+          id="search"
+          style={{ margin: "auto" }}
+        />
         <Button className="btn" onClick={planExercise}>
           <span></span>
           <span></span>
