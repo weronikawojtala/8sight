@@ -104,7 +104,7 @@ const UsersExerciseTable = (props) => {
     let dbdate = date.split("T");
     let datefromslice = dbdate[0].slice(0, dbdate[0].length);
     let splitted = datefromslice.split("-");
-    const newDate = splitted[2] + "-" + splitted[1] + "-" + splitted[0];
+    const newDate = splitted[2] + "/" + splitted[1] + "/" + splitted[0];
     return newDate;
   }
 

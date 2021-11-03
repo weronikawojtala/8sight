@@ -19,26 +19,28 @@ const playAudio = (file) => {
   const resp = file.play();
 };
 
-async function createUserCollection(userID, exerciseID) {
-  await DataStore.save(
-    new UserCollection({
-      userID: userID,
-      exerciseID: exerciseID,
-    })
-  );
-}
-
 async function deleteUserCollection(userCollectionID) {
   const modelToDelete = await DataStore.query(UserCollection, userCollectionID);
   DataStore.delete(modelToDelete);
 }
 
 const SingleExercise = (props) => {
+  const [userCollection, setUserCollection] = useState([]);
   const [disableLike, setDisableLike] = useState(false);
   const [disableDelete, setDisableDelete] = useState(false);
   const [time, setTime] = useState(50);
 
   let match = useRouteMatch("/exercises/:id");
+
+  async function createUserCollection(userID, exerciseID) {
+    const collection = await DataStore.save(
+      new UserCollection({
+        userID: userID,
+        exerciseID: exerciseID,
+      })
+    );
+    setUserCollection(collection);
+  }
 
   async function getTime() {
     const exercise = await findExercise(match.params.id);
@@ -49,46 +51,73 @@ const SingleExercise = (props) => {
     getTime();
   }, []);
 
+  useEffect(() => {
+    const findUserCollection = async () => {
+      const exercise = await findExercise(match.params.id);
+      const exerciseInCollection = await findExerciseInCollection(
+        props.user.id,
+        exercise.id
+      );
+      setUserCollection(exerciseInCollection);
+    };
+    findUserCollection();
+  }, [userCollection]);
+
+  useEffect(() => {
+    const checkCollection = () => {
+      if (userCollection === null || userCollection.length === 0) {
+        setDisableLike(false);
+        setDisableDelete(true);
+      } else {
+        setDisableDelete(false);
+        setDisableLike(true);
+      }
+    };
+    checkCollection();
+  }, [userCollection]);
+
   const handleClickLikeButton = () => {
     playAudio(likeAudio);
-    findUserCollection(props.user.id);
+    createUserCollection(props.user.id, match.params.id);
+    //findUserCollection(props.user.id);
   };
 
   const handleDeleteButton = () => {
     playAudio(deleteAudio);
-    deleteExerciseFromCollection(props.user.id);
+    deleteUserCollection(userCollection.id);
+    setUserCollection([]);
+    //deleteExerciseFromCollection(props.user.id);
   };
 
-  async function deleteExerciseFromCollection(userID) {
-    const exercise = await findExercise(match.params.id);
+  // async function deleteExerciseFromCollection(userID) {
+  //   const exercise = await findExercise(match.params.id);
 
-    const exerciseInCollection = await findExerciseInCollection(
-      userID,
-      exercise.id
-    );
-    if (exerciseInCollection === null) {
-      setDisableDelete(true);
-    } else if (exerciseInCollection.length !== 0) {
-      deleteUserCollection(exerciseInCollection.id);
-    } else {
-      setDisableDelete(true);
-    }
-  }
+  //   const exerciseInCollection = await findExerciseInCollection(
+  //     userID,
+  //     exercise.id
+  //   );
+  //   if (exerciseInCollection === null) {
+  //     setDisableDelete(true);
+  //   } else if (exerciseInCollection.length !== 0) {
+  //     deleteUserCollection(exerciseInCollection.id);
+  //   } else {
+  //     setDisableDelete(true);
+  //   }
+  // }
 
-  async function findUserCollection(userID) {
-    const exercise = await findExercise(match.params.id);
-    console.log(exercise.id);
-    const exerciseInCollection = await findExerciseInCollection(
-      userID,
-      exercise.id
-    );
+  // async function findUserCollection(userID) {
+  //   const exercise = await findExercise(match.params.id);
+  //   const exerciseInCollection = await findExerciseInCollection(
+  //     userID,
+  //     exercise.id
+  //   );
 
-    if (exerciseInCollection === null || exerciseInCollection.length === 0) {
-      createUserCollection(userID, exercise.id);
-    } else {
-      setDisableLike(true);
-    }
-  }
+  //   if (exerciseInCollection === null || exerciseInCollection.length === 0) {
+  //     createUserCollection(userID, exercise.id);
+  //   } else {
+  //     setDisableLike(true);
+  //   }
+  // }
 
   async function planExercise() {
     const findUserHistory = await DataStore.query(UserHistory, (u) => {
