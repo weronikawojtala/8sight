@@ -11,6 +11,7 @@ import { DataStore } from "@aws-amplify/datastore";
 import { UserCollection, UserHistory } from "./models";
 import { useRouteMatch } from "react-router-dom";
 import i1 from "./img/2.jpg";
+import Animation from "./Animation";
 
 const likeAudio = new Audio(likeSound);
 const deleteAudio = new Audio(deleteSound);
@@ -145,6 +146,7 @@ setAlertDate(e.target.value+"Z")
     <div className="card">
       <div className="card-info">
         <h2>Exercise</h2>
+        <Animation/>
         <Button
           disabled={disableLike}
           className="btn"
