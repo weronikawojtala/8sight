@@ -13,7 +13,7 @@ import Nav from "./Nav";
 import TestNav from "./TestNav";
 import SingleExercise from "./SingleExercise";
 import { DataStore } from "@aws-amplify/datastore";
-import { UserHistory } from "./models";
+import { Award, UserAward, UserHistory } from "./models";
 import { Exercise } from "./models";
 import { ToastContainer, toast } from "react-toastify";
 import {
@@ -47,6 +47,7 @@ function App() {
   const [authState, setAuthState] = React.useState();
   const [user, setUser] = React.useState();
   const [visible, setVisible] = useState(true);
+  const [award, setAward] = useState("")
   const [history, setHistory] = useState([]);
   const [alertDates, setAlertDates] = useState("");
   const [exercises, setExercises] = useState([]);
@@ -87,22 +88,59 @@ function App() {
     const foundUser = await DataStore.query(User, (u) =>
       u.username("eq", username)
     );
-    //console.log("Found user:", foundUser);
+    const foundAward = await DataStore.query(Award, a=> a.name("eq", "Login streak"))
+    const awardFromDatabase = foundAward[0];
+    setAward(awardFromDatabase)
+    const foundUserAward = await DataStore.query(UserAward, ua=> ua.userID("eq", foundUser[0].id).awardID("eq",awardFromDatabase.id))
+    const updatedAtDate = foundUserAward[0].updatedAt
+    let update = updatedAtDate.split("T");
+    let updatedDate = update[0].slice(0, update[1].length - 1);
+
     if (foundUser.length > 0) {
       setUser(foundUser[0]);
-      var currentdate = new Date();
-      var day = 0;
-      if (currentdate.getDate() < 10) {
-        day = "0" + currentdate.getDate();
+      const lastLoginDate = foundUser[0].lastLogin;
+      let partsOfDate =lastLoginDate.split('-');
+      let newDate = new Date(partsOfDate[0], partsOfDate[1] - 1, partsOfDate[2]); 
+
+      let nextDay = new Date(newDate);
+      nextDay.setDate(newDate.getDate() + 1);
+
+      var next = 0;
+      if (nextDay.getDate() < 10) {
+        next = "0" + nextDay.getDate();
       } else {
-        day = currentdate.getDate();
+        next = nextDay.getDate();
+      }
+      var nextDayDate = nextDay.getFullYear() + "-" + (nextDay.getMonth() + 1) + "-" + next;
+
+      let currentDate = new Date();
+      
+      var day = 0;
+      if (currentDate.getDate() < 10) {
+        day = "0" + currentDate.getDate();
+      } else {
+        day = currentDate.getDate();
       }
       var datetime =
-        currentdate.getFullYear() +
+        currentDate.getFullYear() +
         "-" +
-        (currentdate.getMonth() + 1) +
+        (currentDate.getMonth() + 1) +
         "-" +
         day;
+
+        if(nextDayDate===datetime&&datetime!==updatedDate){
+          const copyUserAward = UserAward.copyOf(foundUserAward[0], copyUserAward=>{
+            copyUserAward.progress = foundUserAward[0].progress+1;
+          })
+          await DataStore.save(copyUserAward)
+        }
+        else if(nextDayDate!==datetime){
+          const copyUserAward = UserAward.copyOf(foundUserAward[0], copyUserAward=>{
+            copyUserAward.progress = 0;
+          })
+          await DataStore.save(copyUserAward)
+        }
+
       const copy = User.copyOf(foundUser[0], (copy) => {
         copy.lastLogin = datetime;
       });
@@ -200,6 +238,10 @@ function App() {
         lastLogin: new Date().toISOString().slice(0, 10),
       })
     );
+    await DataStore.save(new UserAward({
+      userID: user.userID, 
+      awardID: award.id
+    }))
   }
 
   async function getUserHistory() {

@@ -9,6 +9,7 @@ type UserAward @model @auth(rules: [{allow: public}]) @key(name: "byUser", field
   date: AWSDate
   userID: ID
   awardID: ID
+  progress: Int
 }
 
 type UserHistory @model @auth(rules: [{allow: public}]) @key(name: "byUser", fields: ["userID"]) @key(name: "byExercise", fields: ["exerciseID"]) {
@@ -19,6 +20,7 @@ type UserHistory @model @auth(rules: [{allow: public}]) @key(name: "byUser", fie
   numberOfCompleted: Int
   userID: ID
   exerciseID: ID
+  doneFromAlert: Boolean
 }
 
 type Award @model @auth(rules: [{allow: public}]) {

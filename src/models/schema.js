@@ -115,6 +115,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "progress": {
+                    "name": "progress",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -224,6 +231,13 @@ export const schema = {
                     "name": "exerciseID",
                     "isArray": false,
                     "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "doneFromAlert": {
+                    "name": "doneFromAlert",
+                    "isArray": false,
+                    "type": "Boolean",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -603,5 +617,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "a36999329cef4a2d05dfef29566f0beb"
+    "version": "3c1150acbbe3f81a64ad064a38d0516f"
 };

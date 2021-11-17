@@ -43,6 +43,7 @@ export declare class UserAward {
   readonly date?: string;
   readonly userID?: string;
   readonly awardID?: string;
+  readonly progress?: number;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<UserAward, UserAwardMetaData>);
@@ -57,6 +58,7 @@ export declare class UserHistory {
   readonly numberOfCompleted?: number;
   readonly userID?: string;
   readonly exerciseID?: string;
+  readonly doneFromAlert?: boolean;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<UserHistory, UserHistoryMetaData>);

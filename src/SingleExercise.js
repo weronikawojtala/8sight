@@ -2,7 +2,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Button } from "react-bootstrap";
 import Timer from "./Timer";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import likeSound from "./sounds/hero_simple-celebration-03.wav";
 import deleteSound from "./sounds/navigation_transition-left.wav";
 import { findExercise } from "./findExercise";
@@ -28,6 +28,7 @@ const SingleExercise = (props) => {
   const [userCollection, setUserCollection] = useState([]);
   const [disableLike, setDisableLike] = useState(false);
   const [disableDelete, setDisableDelete] = useState(false);
+  const [alertDate, setAlertDate] = useState("");
   const [time, setTime] = useState(50);
 
   let match = useRouteMatch("/exercises/:id");
@@ -42,14 +43,15 @@ const SingleExercise = (props) => {
     setUserCollection(collection);
   }
 
-  async function getTime() {
-    const exercise = await findExercise(match.params.id);
-    setTime(exercise.time);
-  }
+  useLayoutEffect(() => {
 
-  useEffect(() => {
+    const getTime = async()=>{
+      const exercise = await findExercise(match.params.id);
+      setTime(exercise.time);
+      console.log(time)
+    }
     getTime();
-  }, []);
+  }, [time]);
 
   useEffect(() => {
     const findUserCollection = async () => {
@@ -127,26 +129,16 @@ const SingleExercise = (props) => {
       (history) => history.userID === props.user.id
     );
 
-    var currentdate = new Date();
-
-    var datetime =
-      currentdate.getFullYear() +
-      "-" +
-      (currentdate.getMonth() + 1) +
-      "-" +
-      currentdate.getDate() +
-      "T" +
-      currentdate.getHours() +
-      ":" +
-      currentdate.getMinutes() +
-      ":" +
-      currentdate.getSeconds() +
-      "Z";
-
     const copy = UserHistory.copyOf(history[0], (copy) => {
-      copy.alert = datetime;
+      copy.alert = alertDate;
+      copy.doneFromAlert = false;
     });
     await DataStore.save(copy);
+    document.getElementById("datePicker").value= null;
+  }
+
+  function handleChangeDate(e){
+setAlertDate(e.target.value+"Z")
   }
 
   return (
@@ -197,8 +189,9 @@ const SingleExercise = (props) => {
         <input
           type="datetime-local"
           class="search-input"
-          id="search"
+          id="datePicker"
           style={{ margin: "auto" }}
+          onChange={handleChangeDate}
         />
         <Button className="btn" onClick={planExercise}>
           <span></span>
